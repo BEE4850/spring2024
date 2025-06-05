@@ -144,5 +144,7 @@ bibliography: references.bib
 csl: _assets/references/american-geophysical-union.csl
 execute:
   freeze: auto
-jupyter: julia-1.9
+engine: julia
+julia:
+    exeflags: ['+1.10.4']
 
