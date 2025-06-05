@@ -7,9 +7,9 @@ website:
   page-navigation: true
   title: "BEE 4850 - Spring 2024"
   description: "Homepage for BEE 4850/5850, Environmental Data Analysis and Simulation, at Cornell University, Spring 2024."
-  site-url: "https://viveks.me/simulation-data-analysis"
+  site-url: "https://bee4850.viveks.me/spring2024"
 
-  repo-url: https://github.com/vsrikrish/simulation-data-analysis
+  repo-url: https://github.com/BEE4850/spring2024
 
   open-graph: true
 
