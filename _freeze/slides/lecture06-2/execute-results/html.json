@@ -1,0 +1,12 @@
+{
+  "hash": "53be6f84f2ccfe4aff898ac1f15b25f7",
+  "result": {
+    "engine": "julia",
+    "markdown": "---\ntitle: \"Figure Discussion\"\nsubtitle: \"Lecture 10\"\nauthor: \"Vivek Srikrishnan\"\ncourse: \"BEE 4850\"\ninstitution: \"Cornell University\"\ndate: \"February 28, 2024\"\nformat:\n    revealjs:\n        slide-number: c/t\n        show-slide-number: all\n        center-title-slide: true\n        width: 1280\n        height: 720\n        transition: none\n        toc: true\n        toc-depth: 1\n        toc-title: \"Overview\"\n        history: false\n        link-external-newwindow: true\n        theme: ../sass/slides.scss\n        template-partials:\n            - title-slide.html\n        menu:\n            numbers: true\n        html-math-method: \n            method: mathjax\n            url: \"https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js\"\n        include-in-header: mathjax-config.html\n        date-format: long\n        email-obfuscation: javascript\n        chalkboard:\n            theme: whiteboard\n            buttons: true\n        touch: false\n        controls: true\nengine: julia\njulia:\n    exeflags: [\"+1.10.4\"]          \nexecute:\n    freeze: auto\n---\n\n# Announcements\n\n## Monday Schedule Change\n\n- No office hours Monday, please email me if you need to meet!\n\n## Literature Critique\n\n- 3/27: Literature Critique\n- Find and read a peer-reviewed journal article involving an application of data analysis.\n- Write a short discussion paper (1-2 pages?) analyzing the hypotheses and statistical choices.\n- Prepare presentation of the paper (10 minutes; students will submit peer evaluations).\n- 5850: Write a more formal referee report.\n\n# Upcoming Schedule\n\n## Next Class(es)\n\n**Next Week**: Monte Carlo\n\n## Assessments\n\n**Friday**: Project proposal due by 9pm.\n\nHW3 released this weekend, due 3/15.\n\n",
+    "supporting": [
+      "lecture06-2_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}

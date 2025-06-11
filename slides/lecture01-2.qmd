@@ -31,7 +31,10 @@ format:
         email-obfuscation: javascript
         chalkboard:
             theme: whiteboard
-            buttons: true            
+            buttons: true  
+engine: julia
+julia:
+    exeflags: ["+1.10.4"]          
 execute:
     freeze: auto
 ---

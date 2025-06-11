@@ -3,6 +3,9 @@ title: "Tutorial: Making Plots with Julia"
 execute:
     error: true
     warning: true
+engine: julia
+julia:
+    exeflags: ["+1.9.4"]
 ---
 
 

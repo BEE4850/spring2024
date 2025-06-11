@@ -21,7 +21,9 @@ format:
     number-sections: false
     title: "{{< var course.number >}} ({{< var course.title >}}) Syllabus"
     subtitle: "{{< var course.semester >}}"
-
+engine: julia
+julia:
+    exeflags: ["+1.10.4"]
 ---
 
 ## Course Overview
@@ -353,6 +355,10 @@ The term project can be completed individually or in groups of 2. Students will 
 ```{julia}
 #| echo: false
 #| output: false
+
+import Pkg
+Pkg.activate(@__DIR__)
+Pkg.instantiate()
 
 using Dates
 using DataFrames
