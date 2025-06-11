@@ -115,7 +115,7 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>This website contains course materials for the Spring 2024 edition of <a href="https://envdata.viveks.me/spring2024">Environmental Data Analysis and Simulation</a>, taught by <a href="https://viveks.me">Vivek Srikrishnan</a> at <a href="https://www.cornell.edu">Cornell University</a>.</p>
+<p>This website contains course materials for the Spring 2024 edition of <a href="https://envdata-sp24.viveks.me">Environmental Data Analysis and Simulation</a>, taught by <a href="https://viveks.me">Vivek Srikrishnan</a> at <a href="https://www.cornell.edu">Cornell University</a>.</p>
 <section id="acknowledgements" class="level2">
 <h2 class="anchored" data-anchor-id="acknowledgements">Acknowledgements</h2>
 <p>Much of the material for this course has evolved from discussions and work with <a href="https://engineering.dartmouth.edu/community/faculty/klaus-keller">Klaus Keller</a>, <a href="https://tonyewong.github.io/index.html">Tony Wong</a>, <a href="https://sites.google.com/site/caseyhelgeson/">Casey Helgeson</a>, <a href="https://sites.google.com/view/benslee/">Ben Seiyon Lee</a> and <a href="https://jamesdossgollin.me/">James Doss-Gollin</a>. Many thanks also to <a href="https://statmodeling.stat.columbia.edu/">Andrew Gelman</a> and <a href="https://xianblog.wordpress.com/">Christian Robert</a>, whose work heavily inspired many aspects of this course and which I refer back to regularly. <a href="https://kieranhealy.org/">Kieran Healy</a> also wrote an <a href="https://kieranhealy.org/publications/dataviz/">outstanding book on Data Visualization</a> which I learned a great deal from and still reference.</p>
@@ -123,7 +123,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="tools-and-generation-workflow" class="level2">
 <h2 class="anchored" data-anchor-id="tools-and-generation-workflow">Tools and Generation Workflow</h2>
-<p>This website was built with <a href="https://quarto.org/">Quarto</a>, which allows me to integrate <a href="https://julialang.org/">Julia</a> code and output with the web content, pdfs, and slides in an amazingly clean fashion, while simplifying the process of generation. All materials can be generated through a simple workflow from the <a href="https://www.github.com/BEE4850/spring2024">[GitHub Repository]</a>.</p>
+<p>This website was built with <a href="https://quarto.org/">Quarto</a>, which allows me to integrate <a href="https://julialang.org/">Julia</a> code and output with the web content, pdfs, and slides in an amazingly clean fashion, while simplifying the process of generation. All materials can be generated through a simple workflow from the <a href="https://github.com/bee-envdata-cornell/spring2024/">[GitHub Repository]</a>.</p>
 
 
 </section>
@@ -201,7 +201,7 @@ ul.task-list li input[type="checkbox"] {
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp("https:\/\/envdata\.viveks\.me\/spring2024");
+        var filterRegex = new RegExp("https:\/\/envdata-sp24\.viveks\.me\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
@@ -579,7 +579,7 @@ ul.task-list li input[type="checkbox"] {
       &nbsp;
     </div>
     <div class="nav-footer-right">
-<p>Made with <a href="https://julialang.org">Julia</a> and <a href="https://quarto.org/">Quarto</a><br> <a href="https://www.github.com/BEE4850/spring2024">View the source at <i class="fa-brands fa-github" aria-label="github"></i> GitHub</a></p>
+<p>Made with <a href="https://julialang.org">Julia</a> and <a href="https://quarto.org/">Quarto</a><br> <a href="https://github.com/bee-envdata-cornell/spring2024/">View the source at <i class="fa-brands fa-github" aria-label="github"></i> GitHub</a></p>
 </div>
   </div>
 </footer>
