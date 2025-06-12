@@ -8,23 +8,21 @@ website:
   page-navigation: true
   title: "BEE 4850 - Spring 2024"
   description: "Homepage for BEE 4850/5850, Environmental Data Analysis and Simulation, at Cornell University, Spring 2024."
-  site-url: "https://envdata-sp24.viveks.me/"
+  site-url: "https://envdata.viveks.me/spring2024"
 
   repo-url: https://github.com/bee-envdata-cornell/spring2024/
 
   open-graph: true
 
   page-footer:
+    left: |
+      <span class="faux-block">{{< fa brands creative-commons >}} {{< var years >}} Vivek Srikrishnan</span><br>
+      See the [About Page](/about.qmd) for credit information.
+    center: 
+      - text: "<a href='https://creativecommons.org/licenses/by-sa/4.0/deed.en'>LICENSE: CC-BY-SA {{< fa creative-commons-sa >}} <i class='fab fa-creative-commons'></i><i class='fab fa-creative-commons-by'></i><i class='fab fa-creative-commons-sa'></i></a>"
     right: |
       Made with [Julia](https://julialang.org) and [Quarto](https://quarto.org/)<br>
       [View the source at {{< fa brands github >}} GitHub]({{< var course.github >}})
-
-    left: |
-      Content {{< fa copyright >}} {{< var course.copyright_year >}}  by [{{< var instructor.name_no_title >}}]({{< var instructor.url >}}).
-      See the [About](/about.html) page for credit information.<br>
-      All content licensed under a {{< fa brands creative-commons >}}
-      {{< fa brands creative-commons-by >}} {{< fa brands creative-commons-nc >}}
-      [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International license (CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
   sidebar:
     style: docked
