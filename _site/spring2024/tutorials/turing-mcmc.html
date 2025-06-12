@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.31">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Markov Chain Monte Carlo With Turing – BEE 4850 - Spring 2024</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-e1d1e7f53b840ad8d06c4ae6c57b8588.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-39de1d7bf725568e078fa3bb4646169a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/quarto-contrib/fontawesome6-0.1.0/all.css" rel="stylesheet">
+<link href="../../site_libs/quarto-contrib/fontawesome6-0.1.0/latex-fontsize.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<meta property="og:title" content="Markov Chain Monte Carlo With Turing – BEE 4850 - Spring 2024">
+<meta property="og:description" content="Homepage for BEE 4850/5850, Environmental Data Analysis and Simulation, at Cornell University, Spring 2024.">
+<meta property="og:site_name" content="BEE 4850 - Spring 2024">
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-search-results"></div>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a></li>
+  <li><a href="#setup" id="toc-setup" class="nav-link" data-scroll-target="#setup">Setup</a></li>
+  <li><a href="#fitting-a-linear-regression-model" id="toc-fitting-a-linear-regression-model" class="nav-link" data-scroll-target="#fitting-a-linear-regression-model">Fitting A Linear Regression Model</a>
+  <ul class="collapse">
+  <li><a href="#simulating-data" id="toc-simulating-data" class="nav-link" data-scroll-target="#simulating-data">Simulating Data</a></li>
+  <li><a href="#model-specification" id="toc-model-specification" class="nav-link" data-scroll-target="#model-specification">Model Specification</a></li>
+  <li><a href="#using-turing" id="toc-using-turing" class="nav-link" data-scroll-target="#using-turing">Using Turing</a></li>
+  <li><a href="#model-diagnostics-and-posterior-predictive-checks" id="toc-model-diagnostics-and-posterior-predictive-checks" class="nav-link" data-scroll-target="#model-diagnostics-and-posterior-predictive-checks">Model Diagnostics and Posterior Predictive Checks</a></li>
+  </ul></li>
+  <li><a href="#fitting-extreme-value-models-to-tide-gauge-data" id="toc-fitting-extreme-value-models-to-tide-gauge-data" class="nav-link" data-scroll-target="#fitting-extreme-value-models-to-tide-gauge-data">Fitting Extreme Value Models to Tide Gauge Data</a>
+  <ul class="collapse">
+  <li><a href="#load-data" id="toc-load-data" class="nav-link" data-scroll-target="#load-data">Load Data</a></li>
+  <li><a href="#fit-the-model" id="toc-fit-the-model" class="nav-link" data-scroll-target="#fit-the-model">Fit The Model</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Markov Chain Monte Carlo With Turing</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">Overview</h2>
+<p>This tutorial will give some examples of using <code>Turing.jl</code> and Markov Chain Monte Carlo to sample from posterior distributions.</p>
+</section>
+<section id="setup" class="level2">
+<h2 class="anchored" data-anchor-id="setup">Setup</h2>
+<div id="4" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Turing</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Distributions</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Plots</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">default</span>(fmt <span class="op">=</span> <span class="op">:</span>png) <span class="co"># the tide gauge data is long, this keeps images a manageable size</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">LaTeXStrings</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">StatsPlots</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Measures</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">StatsBase</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Optim</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Random</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">DataFrames</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">DataFramesMeta</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Dates</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">CSV</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>As this tutorial involves random number generation, we will set a random seed to ensure reproducibility.</p>
+<div id="6" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">Random</span>.<span class="fu">seed!</span>(<span class="fl">1</span>);</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="fitting-a-linear-regression-model" class="level2">
+<h2 class="anchored" data-anchor-id="fitting-a-linear-regression-model">Fitting A Linear Regression Model</h2>
+<p>Let’s start with a simple example: fitting a linear regression model to simulated data.</p>
+<blockquote class="blockquote">
+<p><strong>Positive Control Tests</strong></p>
+<p>Simulating data with a known data-generating process and then trying to obtain the parameters for that process is an important step in any workflow.</p>
+</blockquote>
+<section id="simulating-data" class="level3">
+<h3 class="anchored" data-anchor-id="simulating-data">Simulating Data</h3>
+<p>The data-generating process for this example will be: <span class="math display">\[
+\begin{gather}
+y = 5 + 2x + \varepsilon \\
+\varepsilon \sim \text{Normal}(0, 3),
+\end{gather}
+\]</span> where <span class="math inline">\(\varepsilon\)</span> is so-called “white noise”, which adds stochasticity to the data set. The generated dataset is shown in <a href="#fig-scatter-regression" class="quarto-xref">Figure&nbsp;1</a>.</p>
+</section>
+<section id="model-specification" class="level3">
+<h3 class="anchored" data-anchor-id="model-specification">Model Specification</h3>
+<p>The statistical model for a standard linear regression problem is <span class="math display">\[
+\begin{gather}
+y = a + bx + \varepsilon \\
+\varepsilon \sim \text{Normal}(0, \sigma).
+\end{gather}
+\]</span></p>
+<p>Rearranging, we can rewrite the likelihood function as: <span class="math display">\[y \sim \text{Normal}(\mu, \sigma),\]</span> where <span class="math inline">\(\mu = a + bx\)</span>. This means that we have three parameters to fit: <span class="math inline">\(a\)</span>, <span class="math inline">\(b\)</span>, and <span class="math inline">\(\sigma^2\)</span>.</p>
+<p>Next, we need to select priors on our parameters. We’ll use relatively generic distributions to avoid using the information we have (since we generated the data ourselves), but in practice, we’d want to use any relevant information that we had from our knowledge of the problem. Let’s use relatively diffuse normal distributions for the trend parameters <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> and a half-normal distribution (a normal distribution truncated at 0, to only allow positive values) for the variance <span class="math inline">\(\sigma^2\)</span>, as recommended by Gelman (2006).</p>
+<p><span class="math display">\[
+\begin{gather}
+a \sim \text{Normal(0, 10)} \\
+b \sim \text{Normal(0, 10)} \\
+\sigma \sim \text{Half-Normal}(0, 25)
+\end{gather}
+\]</span></p>
+</section>
+<section id="using-turing" class="level3">
+<h3 class="anchored" data-anchor-id="using-turing">Using Turing</h3>
+<section id="coding-the-model" class="level4">
+<h4 class="anchored" data-anchor-id="coding-the-model">Coding the Model</h4>
+<p><code>Turing.jl</code> uses the <code>@model</code> macro to specify the model function. We’ll follow the setup in the <a href="https://turinglang.org/dev/tutorials/05-linear-regression">Turing documentation</a>.</p>
+<p>To specify distributions on parameters (and the data, which can be thought of as uncertain parameters in Bayesian statistics), use a tilde <code>~</code>, and use equals <code>=</code> for transformations (which we don’t have in this case).</p>
+<div id="10" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="pp">@model</span> <span class="kw">function</span> <span class="fu">linear_regression</span>(x, y)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># set priors</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    σ <span class="op">~</span> <span class="fu">truncated</span>(<span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">25</span>); lower<span class="op">=</span><span class="fl">0</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    a <span class="op">~</span> <span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">10</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    b <span class="op">~</span> <span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">10</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># compute the likelihood</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fu">length</span>(y)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        <span class="co"># compute the mean value for the data point</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        μ <span class="op">=</span> a <span class="op">+</span> b <span class="op">*</span> x[i]</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>        y[i] <span class="op">~</span> <span class="fu">Normal</span>(μ, σ)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>linear_regression (generic function with 2 methods)</code></pre>
+</div>
+</div>
+</section>
+<section id="fitting-the-model" class="level4">
+<h4 class="anchored" data-anchor-id="fitting-the-model">Fitting The Model</h4>
+<p>Now we can call the sampler to draw from the posterior. We’ll use the <a href="https://en.wikipedia.org/wiki/Hamiltonian_Monte_Carlo#No_U-Turn_Sampler">No-U-Turn sampler</a> (Hoffman &amp; Gelman, 2014), which is a Hamiltonian Monte Carlo algorithm (a different category of MCMC sampler than the Metropolis-Hastings algorithm discussed in class). We’ll also use 4 chains so we can test that the chains are well-mixed, and each chain will be run for 5,000 iterations[1]</p>
+<p>[1] Hamiltonian Monte Carlo samplers often need to be run for fewer iterations than Metropolis-Hastings samplers, as the exploratory step uses information about the gradient of the statistical model, versus the random walk of Metropolis-Hastings. The disadvantage is that this gradient information must be available, which is not always the case for external simulation models. Simulation models coded in Julia can usually be automatically differentiated by Turing’s tools, however.</p>
+<div id="12" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># set up the sampler</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> <span class="fu">linear_regression</span>(x, y)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>n_chains <span class="op">=</span> <span class="fl">4</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>n_per_chain <span class="op">=</span> <span class="fl">5000</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>chain <span class="op">=</span> <span class="fu">sample</span>(model, <span class="fu">NUTS</span>(), <span class="fu">MCMCThreads</span>(), n_per_chain, n_chains, drop_warmup<span class="op">=</span><span class="cn">true</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="pp">@show</span> chain</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre>Chains MCMC chain (5000×15×4 Array{Float64, 3}):
+
+Iterations        = 1001:1:6000
+Number of chains  = 4
+Samples per chain = 5000
+Wall duration     = 8.84 seconds
+Compute duration  = 6.97 seconds
+parameters        = σ, a, b
+internals         = lp, n_steps, is_accept, acceptance_rate, log_density, hamiltonian_energy, hamiltonian_energy_error, max_hamiltonian_energy_error, tree_depth, numerical_error, step_size, nom_step_size
+
+Summary Statistics
+ <span class="ansi-bold"> parameters </span> <span class="ansi-bold">    mean </span> <span class="ansi-bold">     std </span> <span class="ansi-bold">    mcse </span> <span class="ansi-bold">  ess_bulk </span> <span class="ansi-bold">  ess_tail </span> <span class="ansi-bold">    rhat </span>  ⋯
+ <span class="ansi-bright-black-fg">     Symbol </span> <span class="ansi-bright-black-fg"> Float64 </span> <span class="ansi-bright-black-fg"> Float64 </span> <span class="ansi-bright-black-fg"> Float64 </span> <span class="ansi-bright-black-fg">   Float64 </span> <span class="ansi-bright-black-fg">   Float64 </span> <span class="ansi-bright-black-fg"> Float64 </span>  ⋯
+
+           σ    5.3995    0.9907    0.0106   8907.8053   8357.6551    1.0008   ⋯
+           a    7.3413    2.1497    0.0228   8980.2158   9558.6500    1.0006   ⋯
+           b    1.7991    0.1916    0.0020   8980.6008   9477.6142    1.0006   ⋯
+<span class="ansi-cyan-fg">                                                                1 column omitted</span>
+
+Quantiles
+ <span class="ansi-bold"> parameters </span> <span class="ansi-bold">    2.5% </span> <span class="ansi-bold">   25.0% </span> <span class="ansi-bold">   50.0% </span> <span class="ansi-bold">   75.0% </span> <span class="ansi-bold">   97.5% </span>
+ <span class="ansi-bright-black-fg">     Symbol </span> <span class="ansi-bright-black-fg"> Float64 </span> <span class="ansi-bright-black-fg"> Float64 </span> <span class="ansi-bright-black-fg"> Float64 </span> <span class="ansi-bright-black-fg"> Float64 </span> <span class="ansi-bright-black-fg"> Float64 </span>
+
+           σ    3.8939    4.6953    5.2650    5.9393    7.7752
+           a    2.9639    5.9700    7.3826    8.7456   11.5116
+           b    1.4242    1.6757    1.7948    1.9202    2.1879
+</pre>
+</div>
+</div>
+<p>How can we interpret the output? The first parts of the summary statistics are straightforward: we get the mean, standard deviation, and Monte Carlo standard error (<code>mcse</code>) of each parameter. We also get information about the effective sample size (ESS)[1] and <span class="math inline">\(\hat{R}\)</span>, which measures the ratio of within-chain variance and across-chain variance as a check for convergence[2].</p>
+<p>In this case, we can see that we were generally able to recover the “true” data-generating values of <span class="math inline">\(\sigma = 4\)</span> and <span class="math inline">\(b = 2\)</span>, but <span class="math inline">\(a\)</span> is slightly off (the mean is 3, rather than the data-generating value of 5). In fact, there is substantial uncertainty about <span class="math inline">\(a\)</span>, with a 95% credible interval of <span class="math inline">\((3.1, 11.4)\)</span> (compared to <span class="math inline">\((1.4, 2.2)\)</span> for <span class="math inline">\(b\)</span>). This isn’t surprising: given the variance of the noise <span class="math inline">\(\sigma^2\)</span>, there are many different intercepts which could fit within that spread.</p>
+<p>Let’s now plot the chains for visual inspection.</p>
+<p>[1] The ESS reflects the efficiency of the sampler: this is an estimate of the equivalent number of independent samples; the more correlated the samples, the lower the ESS.</p>
+<p>[2] The closer <span class="math inline">\(\hat{R}\)</span> is to 1, the better.</p>
+<div id="cell-fig-chains-regression" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(chain)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We can see from <a href="#fig-chains-regression" class="quarto-xref">Figure&nbsp;2</a> that our chains mixed well and seem to have converged to similar distributions! The traceplots have a “hairy caterpiller” appearance, suggesting relatively little autocorrelation. We can also see how much more uncertainty there is with the intercept <span class="math inline">\(a\)</span>, while the slope <span class="math inline">\(b\)</span> is much more constrained.</p>
+<p>Another interesting comparison we can make is with the maximum-likelihood estimate (MLE), which we can obtain through optimization.</p>
+<div id="16" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>mle_model <span class="op">=</span> <span class="fu">linear_regression</span>(x, y)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>mle <span class="op">=</span> <span class="fu">optimize</span>(mle_model, <span class="fu">MLE</span>())</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(mle)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We could also get the maximum <em>a posteriori</em> (MAP) estimate, which includes the prior density, by replacing <code>MLE()</code> with <code>MAP()</code>.</p>
+</section>
+</section>
+<section id="model-diagnostics-and-posterior-predictive-checks" class="level3">
+<h3 class="anchored" data-anchor-id="model-diagnostics-and-posterior-predictive-checks">Model Diagnostics and Posterior Predictive Checks</h3>
+<p>One advantage of the Bayesian modeling approach here is that we have access to a <em>generative model</em>, or a model which we can use to generate datasets. This means that we can now use Monte Carlo simulation, sampling from our posteriors, to look at how uncertainty in the parameter estimates propagates through the model. Let’s write a function which gets samples from the MCMC chains and generates datasets.</p>
+<div id="18" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">mc_predict_regression</span>(x, chain)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># get the posterior samples</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> <span class="fu">Array</span>(<span class="fu">group</span>(chain, <span class="op">:</span>a))</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> <span class="fu">Array</span>(<span class="fu">group</span>(chain, <span class="op">:</span>b))</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    σ <span class="op">=</span> <span class="fu">Array</span>(<span class="fu">group</span>(chain, <span class="op">:</span>σ))</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># loop and generate alternative realizations</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    μ <span class="op">=</span> a<span class="op">'</span> <span class="op">.+</span> x <span class="op">*</span> b<span class="op">'</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> <span class="fu">zeros</span>((<span class="fu">length</span>(x), <span class="fu">length</span>(a)))</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fu">length</span>(a)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        y[<span class="op">:</span>, i] <span class="op">=</span> <span class="fu">rand</span>.(<span class="fu">Normal</span>.(μ[<span class="op">:</span>, i], σ[i]))</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> y</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>mc_predict_regression (generic function with 1 method)</code></pre>
+</div>
+</div>
+<p>Now we can generate a predictive interval and median and compare to the data.</p>
+<div id="20" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>x_pred <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">20</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>y_pred <span class="op">=</span> <span class="fu">mc_predict_regression</span>(x_pred, chain)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>21×20000 Matrix{Float64}:
+ -2.40865    1.9357    10.5589    15.7446   …   6.26661    0.222214  10.1702
+ 10.7976    18.8545     0.296641   3.38924     10.5971    10.8189    15.9384
+ -0.417529  -0.885769   5.56482    7.39414     -0.981201   7.27796    6.9013
+  4.33488   11.1663     9.51384    9.95352      5.88792   10.313     11.4574
+  5.26926    5.42713   20.2392    13.7574      17.4582    10.5193     8.7948
+ 15.825     16.9226    19.3498    28.6916   …  13.6763    15.6275     6.24528
+ 16.504     14.0514    13.6398    18.3671      14.349     18.3797    14.9837
+ 23.6586    26.4983    29.1236    21.162       20.1668    20.2031    28.3504
+ 16.5461    23.2524    20.7667    22.3589      12.5181     9.4516    12.7805
+ 32.7533    13.6189    17.0692    26.5378      26.2872    16.5962    26.4759
+  ⋮                                         ⋱                        
+ 30.6918    18.5685    30.0918    34.6757      23.5247    27.7565    28.9372
+ 27.8009    39.4466    34.1512    34.7717      30.2555    36.9157    26.2247
+ 26.9089    34.0929    36.0757    39.6863      28.6581    33.8906    35.4109
+ 44.642     31.9187    37.0507    25.4562   …  34.3312    27.4952    23.2894
+ 47.9252    36.3149    34.642     37.9717      41.1715    34.784     36.6823
+ 39.9288    27.0537    33.4583    42.8428      41.3582    32.8539    31.7867
+ 44.4605    34.1545    46.2137    35.4133      42.2067    39.4086    36.1819
+ 43.712     42.4212    41.7049    50.7652      51.3167    33.0422    49.135
+ 45.9144    43.2963    52.2372    50.891    …  39.7291    52.5323    46.89</code></pre>
+</div>
+</div>
+<p>Notice the dimension of <code>y_pred</code>: we have 20,000 columns, because we have 4 chains with 5,000 samples each. If we had wanted to subsample (which might be necessary if we had hundreds of thousands or millions of samples), we could have done that within <code>mc_linear_regression</code> before simulation.</p>
+<div id="22" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># get the boundaries for the 95% prediction interval and the median</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>y_ci_low <span class="op">=</span> <span class="fu">quantile</span>.(<span class="fu">eachrow</span>(y_pred), <span class="fl">0.025</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>y_ci_hi <span class="op">=</span> <span class="fu">quantile</span>.(<span class="fu">eachrow</span>(y_pred), <span class="fl">0.975</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>y_med <span class="op">=</span> <span class="fu">quantile</span>.(<span class="fu">eachrow</span>(y_pred), <span class="fl">0.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now, let’s plot the prediction interval and median, and compare to the original data.</p>
+<div id="cell-fig-prediction-regression" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot prediction interval</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(x_pred, y_ci_low, fillrange<span class="op">=</span>y_ci_hi, xlabel<span class="op">=</span>L<span class="st">"</span><span class="sc">$</span>x<span class="sc">$</span><span class="st">", </span>ylabel<span class="st">=L"</span><span class="op">$</span>y<span class="op">$</span><span class="st">", fillalpha=0.3, fillcolor=:blue, label="</span><span class="fl">95</span><span class="op">%</span> Prediction Interval<span class="st">", legend=:topleft, linealpha=0)</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot!</span>(x_pred, y_med, color<span class="op">=:</span>blue, label<span class="op">=</span><span class="st">"Prediction Median"</span>)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="fu">scatter!</span>(x, y, color<span class="op">=:</span>red, label<span class="op">=</span><span class="st">"Data"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>From <a href="#fig-prediction-regression" class="quarto-xref">Figure&nbsp;3</a>, it looks like our model might be slightly under-confident, as with 20 data points, we would expect 5% of them (or 1 data point) to be outside the 95% prediction interval. It’s hard to tell with only 20 data points, though! We could resolve this by tightening our priors, but this depends on how much information we used to specify them in the first place. The goal shouldn’t be to hit a specific level of uncertainty, but if there is a sound reason to tighten the priors, we could do so.</p>
+<p>Now let’s look at the residuals from the posterior median and the data. The partial autocorrelations plotted in <a href="#fig-residuals-regression" class="quarto-xref">Figure&nbsp;4</a> are not fully convincing, as there are large autocorrelation coefficients with long lags, but the dataset is quite small, so it’s hard to draw strong conclusions. We won’t go further down this rabbit hole as we know our data-generating process involved independent noise, but for a real dataset, we might want to try a model specification with autocorrelated errors to compare.</p>
+<div id="cell-fig-residuals-regression" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate the median predictions and residuals</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>y_pred_data <span class="op">=</span> <span class="fu">mc_predict_regression</span>(x, chain)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>y_med_data <span class="op">=</span> <span class="fu">quantile</span>.(<span class="fu">eachrow</span>(y_pred_data), <span class="fl">0.5</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>residuals <span class="op">=</span> y_med_data <span class="op">.-</span> y</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the residuals and a line to show the zero</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">pacf</span>(residuals, <span class="fl">1</span><span class="op">:</span><span class="fl">4</span>), line<span class="op">=:</span>stem, marker<span class="op">=:</span>circle, legend<span class="op">=:</span><span class="cn">false</span>, grid<span class="op">=:</span><span class="cn">false</span>, linewidth<span class="op">=</span><span class="fl">2</span>, xlabel<span class="op">=</span><span class="st">"Lag"</span>, ylabel<span class="op">=</span><span class="st">"Partial Autocorrelation"</span>, markersize<span class="op">=</span><span class="fl">8</span>, tickfontsize<span class="op">=</span><span class="fl">14</span>, guidefontsize<span class="op">=</span><span class="fl">16</span>, legendfontsize<span class="op">=</span><span class="fl">16</span>)</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="fu">hline!</span>([<span class="fl">0</span>], linestyle<span class="op">=:</span>dot, color<span class="op">=:</span>red)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="fitting-extreme-value-models-to-tide-gauge-data" class="level2">
+<h2 class="anchored" data-anchor-id="fitting-extreme-value-models-to-tide-gauge-data">Fitting Extreme Value Models to Tide Gauge Data</h2>
+<p>Let’s now look at an example of fitting an extreme value distribution (namely, a <a href="https://en.wikipedia.org/wiki/Generalized_extreme_value_distribution">generalized extreme value distribution</a>, or GEV) to tide gauge data. GEV distributions have three parameters:</p>
+<ul>
+<li><span class="math inline">\(\mu\)</span>, the <em>location</em> parameter, which reflects the positioning of the bulk of the GEV distribution;</li>
+<li><span class="math inline">\(\sigma\)</span>, the <em>scale</em> parameter, which reflects the width of the bulk;</li>
+<li><span class="math inline">\(\xi\)</span>, the <em>shape</em> parameter, which reflects the thickness and boundedness of the tail.</li>
+</ul>
+<p>The shape parameter <span class="math inline">\(\xi\)</span> is often of interest, as there are three classes of GEV distributions corresponding to different signs:</p>
+<ul>
+<li><span class="math inline">\(\xi &lt; 0\)</span> means that the distribution is bounded;</li>
+<li><span class="math inline">\(\xi = 0\)</span> means that the distribution has a thinner tail, so the “extreme extremes” are less likely;</li>
+<li><span class="math inline">\(\xi &gt; 0\)</span> means that the distribution has a thicker tail.</li>
+</ul>
+<section id="load-data" class="level3">
+<h3 class="anchored" data-anchor-id="load-data">Load Data</h3>
+<p>First, let’s load the data. We’ll use <a href="https://uhslc.soest.hawaii.edu/datainfo/">data from the University of Hawaii Sea Level Center</a> (Caldwell et al., 2015) for San Francisco, from 1897-2013. If you don’t have this data and are working with the notebook, download it <a href="https://uhslc.soest.hawaii.edu/data/csv/rqds/hourly/h551a.csv">here</a>. We’ll assume it’s in a <code>data/</code> subdirectory, but change the path as needed.</p>
+<p>The dataset consists of dates and hours and the tide-gauge measurement, in mm. We’ll load the dataset into a <code>DataFrame</code>.</p>
+<div id="28" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">load_data</span>(fname)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    date_format <span class="op">=</span> <span class="fu">DateFormat</span>(<span class="st">"yyyy-mm-dd HH:MM:SS"</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    df <span class="op">=</span> <span class="pp">@chain</span> fname <span class="cf">begin</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>        CSV.<span class="fu">File</span>(; delim<span class="op">=</span><span class="ch">','</span>, header<span class="op">=</span><span class="cn">false</span>)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>        DataFrame</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>        <span class="fu">rename</span>(<span class="st">"Column1"</span> <span class="op">=&gt;</span> <span class="st">"year"</span>,</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>                <span class="st">"Column2"</span> <span class="op">=&gt;</span> <span class="st">"month"</span>,</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>                <span class="st">"Column3"</span> <span class="op">=&gt;</span> <span class="st">"day"</span>,</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>                <span class="st">"Column4"</span> <span class="op">=&gt;</span> <span class="st">"hour"</span>,</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>                <span class="st">"Column5"</span> <span class="op">=&gt;</span> <span class="st">"gauge"</span>)</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>        <span class="co"># need to reformat the decimal date in the data file</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>        <span class="pp">@transform</span> <span class="op">:</span>datetime <span class="op">=</span> <span class="fu">DateTime</span>.(<span class="op">:</span>year, <span class="op">:</span>month, <span class="op">:</span>day, <span class="op">:</span>hour)</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>        <span class="co"># replace -99999 with missing</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>        <span class="pp">@transform</span> <span class="op">:</span>gauge <span class="op">=</span> <span class="fu">ifelse</span>.(<span class="fu">abs</span>.(<span class="op">:</span>gauge) <span class="op">.&gt;=</span> <span class="fl">9999</span>, <span class="cn">missing</span>, <span class="op">:</span>gauge)</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>        <span class="fu">select</span>(<span class="op">:</span>datetime, <span class="op">:</span>gauge)</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> df</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>load_data (generic function with 1 method)</code></pre>
+</div>
+</div>
+<div id="a8ccd984-7221-461e-a4c8-596b738fb2db" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>dat <span class="op">=</span> <span class="fu">load_data</span>(<span class="st">"data/h551a.csv"</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">first</span>(dat, <span class="fl">6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-fig-raw-data" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="pp">@df</span> dat <span class="fu">plot</span>(<span class="op">:</span>datetime, <span class="op">:</span>gauge, label<span class="op">=</span><span class="st">"Observations"</span>, bottom_margin<span class="op">=</span><span class="fl">9</span>mm)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">xaxis!</span>(<span class="st">"Date"</span>, xrot<span class="op">=</span><span class="fl">30</span>)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">yaxis!</span>(<span class="st">"Mean Water Level"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Next, we need to detrend the data to remove the impacts of sea-level rise. We do this by removing a one-year moving average, centered on the data point, per the recommendation of Arns et al.&nbsp;(2013).</p>
+<div id="cell-fig-data-detrend" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate the moving average and subtract it off</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>ma_length <span class="op">=</span> <span class="fl">366</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>ma_offset <span class="op">=</span> <span class="fu">Int</span>(<span class="fu">floor</span>(ma_length<span class="op">/</span><span class="fl">2</span>))</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="fu">moving_average</span>(series,n) <span class="op">=</span> [<span class="fu">mean</span>(<span class="pp">@view</span> series[i<span class="op">-</span>n<span class="op">:</span>i<span class="op">+</span>n]) for i <span class="kw">in</span> n<span class="op">+</span><span class="fl">1</span><span class="op">:</span><span class="fu">length</span>(series)<span class="op">-</span>n]</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>dat_ma <span class="op">=</span> <span class="fu">DataFrame</span>(datetime<span class="op">=</span>dat.datetime[ma_offset<span class="op">+</span><span class="fl">1</span><span class="op">:</span><span class="kw">end</span><span class="op">-</span>ma_offset], residual<span class="op">=</span>dat.gauge[ma_offset<span class="op">+</span><span class="fl">1</span><span class="op">:</span><span class="kw">end</span><span class="op">-</span>ma_offset] <span class="op">.-</span> <span class="fu">moving_average</span>(dat.gauge, ma_offset))</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="co"># plot</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="pp">@df</span> dat_ma <span class="fu">plot</span>(<span class="op">:</span>datetime, <span class="op">:</span>residual, label<span class="op">=</span><span class="st">"Detrended Observations"</span>, bottom_margin<span class="op">=</span><span class="fl">9</span>mm)</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="fu">xaxis!</span>(<span class="st">"Date"</span>, xrot<span class="op">=</span><span class="fl">30</span>)</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="fu">yaxis!</span>(<span class="st">"Mean Water Level"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The last step in preparing the data is to find the annual maxima. We can do this using the <code>groupby</code>, <code>transform</code>, and <code>combine</code> functions from <code>DataFrames.jl</code>, as below.</p>
+<div id="cell-fig-annmax-histogram" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate the annual maxima</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>dat_ma <span class="op">=</span> <span class="fu">dropmissing</span>(dat_ma)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>dat_annmax <span class="op">=</span> <span class="fu">combine</span>(dat_ma <span class="op">-&gt;</span> dat_ma[<span class="fu">argmax</span>(dat_ma.residual), <span class="op">:</span>],</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>                <span class="fu">groupby</span>(DataFrames.<span class="fu">transform</span>(dat_ma, <span class="op">:</span>datetime <span class="op">=&gt;</span> <span class="fu">x-&gt;year</span>.(x)), <span class="op">:</span>datetime_function))</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="fu">delete!</span>(dat_annmax, <span class="fu">nrow</span>(dat_annmax))</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="co"># make a histogram of the maxima to see the distribution</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="fu">histogram</span>(dat_annmax.residual, label<span class="op">=</span><span class="cn">false</span>)</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ylabel!</span>(<span class="st">"Count"</span>)</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a><span class="fu">xlabel!</span>(<span class="st">"Mean Water Level (mm)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="fit-the-model" class="level3">
+<h3 class="anchored" data-anchor-id="fit-the-model">Fit The Model</h3>
+<div id="38" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="pp">@model</span> <span class="kw">function</span> <span class="fu">gev_annmax</span>(y)               </span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    μ <span class="op">~</span> <span class="fu">Normal</span>(<span class="fl">1000</span>, <span class="fl">100</span>)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    σ <span class="op">~</span> <span class="fu">truncated</span>(<span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">100</span>); lower<span class="op">=</span><span class="fl">0</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    ξ <span class="op">~</span> <span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">0.5</span>)</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    y <span class="op">~</span> <span class="fu">GeneralizedExtremeValue</span>(μ, σ, ξ)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>gev_model <span class="op">=</span> <span class="fu">gev_annmax</span>(dat_annmax.residual)</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>n_chains <span class="op">=</span> <span class="fl">4</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>n_per_chain <span class="op">=</span> <span class="fl">5000</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>gev_chain <span class="op">=</span> <span class="fu">sample</span>(gev_model, <span class="fu">NUTS</span>(), <span class="fu">MCMCThreads</span>(), n_per_chain, n_chains; drop_warmup<span class="op">=</span><span class="cn">true</span>)</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a><span class="pp">@show</span> gev_chain</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre>Chains MCMC chain (5000×15×4 Array{Float64, 3}):
+
+Iterations        = 1001:1:6000
+Number of chains  = 4
+Samples per chain = 5000
+Wall duration     = 6.25 seconds
+Compute duration  = 5.78 seconds
+parameters        = μ, σ, ξ
+internals         = lp, n_steps, is_accept, acceptance_rate, log_density, hamiltonian_energy, hamiltonian_energy_error, max_hamiltonian_energy_error, tree_depth, numerical_error, step_size, nom_step_size
+
+Summary Statistics
+ <span class="ansi-bold"> parameters </span> <span class="ansi-bold">      mean </span> <span class="ansi-bold">     std </span> <span class="ansi-bold">    mcse </span> <span class="ansi-bold">   ess_bulk </span> <span class="ansi-bold">   ess_tail </span> <span class="ansi-bold">    rh</span> ⋯
+ <span class="ansi-bright-black-fg">     Symbol </span> <span class="ansi-bright-black-fg">   Float64 </span> <span class="ansi-bright-black-fg"> Float64 </span> <span class="ansi-bright-black-fg"> Float64 </span> <span class="ansi-bright-black-fg">    Float64 </span> <span class="ansi-bright-black-fg">    Float64 </span> <span class="ansi-bright-black-fg"> Float</span> ⋯
+
+           μ   1257.8434    5.6421    0.0489   13375.4301   11521.3394    1.00 ⋯
+           σ     57.2113    4.2214    0.0363   13619.4235   13686.7664    1.00 ⋯
+           ξ      0.0295    0.0625    0.0005   14332.1783   11774.3672    1.00 ⋯
+<span class="ansi-cyan-fg">                                                               2 columns omitted</span>
+
+Quantiles
+ <span class="ansi-bold"> parameters </span> <span class="ansi-bold">      2.5% </span> <span class="ansi-bold">     25.0% </span> <span class="ansi-bold">     50.0% </span> <span class="ansi-bold">     75.0% </span> <span class="ansi-bold">     97.5% </span>
+ <span class="ansi-bright-black-fg">     Symbol </span> <span class="ansi-bright-black-fg">   Float64 </span> <span class="ansi-bright-black-fg">   Float64 </span> <span class="ansi-bright-black-fg">   Float64 </span> <span class="ansi-bright-black-fg">   Float64 </span> <span class="ansi-bright-black-fg">   Float64 </span>
+
+           μ   1246.9789   1254.0379   1257.7738   1261.5762   1269.0232
+           σ     49.5961     54.2510     57.0043     59.8866     66.0566
+           ξ     -0.0814     -0.0150      0.0258      0.0693      0.1629
+</pre>
+</div>
+</div>
+<div id="cell-fig-gev-traceplot" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(gev_chain)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>From <a href="#fig-gev-traceplot" class="quarto-xref">Figure&nbsp;8</a>, it looks like all of the chains have converged to the same distribution; the Gelman-Rubin diagnostic is also close to 1 for all parameters. Next, we can look at a corner plot to see how the parameters are correlated.</p>
+<div id="cell-fig-gev-corner" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">corner</span>(gev_chain)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><a href="#fig-gev-corner" class="quarto-xref">Figure&nbsp;9</a> suggests that the location and scale parameters <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span> are positively correlated. This makes some intuitive sense, as increasing the location parameter shifts the bulk of the distribution in a positive direction, and the increasing scale parameter then increases the likelihood of lower values. However, if these parameters are increased, the shape parameter <span class="math inline">\(\xi\)</span> decreases, as the tail of the GEV does not need to be as thick due to the increased proximity of outliers to the bulk.</p>
+<p>Arns, A., Wahl, T., Haigh, I. D., Jensen, J., &amp; Pattiaratchi, C. (2013). <span class="nocase">Estimating extreme water level probabilities: A comparison of the direct methods and recommendations for best practise</span>. <em>Coast. Eng.</em>, <em>81</em>, 51–66. <a href="https://doi.org/10.1016/j.coastaleng.2013.07.003" class="uri">https://doi.org/10.1016/j.coastaleng.2013.07.003</a></p>
+<p>Caldwell, P. C., Merrifield, M. A., &amp; Thompson, P. R. (2015). Sea level measured by tide gauges from global oceans — the joint archive for sea level holdings (NCEI accession 0019568). NOAA National Centers for Environmental Information (NCEI). <a href="https://doi.org/10.7289/V5V40S7W" class="uri">https://doi.org/10.7289/V5V40S7W</a></p>
+<p>Gelman, A. (2006). Prior distributions for variance parameters in hierarchical models (comment on article by Browne and Draper). <em>Bayesian Anal.</em>, <em>1</em>(3), 515–533. <a href="https://doi.org/10.1214/06-BA117A" class="uri">https://doi.org/10.1214/06-BA117A</a></p>
+<p>Hoffman, M. D., &amp; Gelman, A. (2014). The No-U-Turn sampler: Adaptively setting path lengths in Hamiltonian Monte Carlo. <em>J. Mach. Learn. Res.</em>, <em>15</em>(47), 1593–1623.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/envdata\.viveks\.me\/spring2024");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        const annoteTargets = window.document.querySelectorAll('.code-annotation-anchor');
+        for (let i=0; i<annoteTargets.length; i++) {
+          const annoteTarget = annoteTargets[i];
+          const targetCell = annoteTarget.getAttribute("data-target-cell");
+          const targetAnnotation = annoteTarget.getAttribute("data-target-annotation");
+          const contentFn = () => {
+            const content = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+            if (content) {
+              const tipContent = content.cloneNode(true);
+              tipContent.classList.add("code-annotation-tip-content");
+              return tipContent.outerHTML;
+            }
+          }
+          const config = {
+            allowHTML: true,
+            content: contentFn,
+            onShow: (instance) => {
+              selectCodeLines(instance.reference);
+              instance.reference.classList.add('code-annotation-active');
+              window.tippy.hideAll();
+            },
+            onHide: (instance) => {
+              unselectCodeLines();
+              instance.reference.classList.remove('code-annotation-active');
+            },
+            maxWidth: 300,
+            delay: [50, 0],
+            duration: [200, 0],
+            offset: [5, 10],
+            arrow: true,
+            trigger: 'click',
+            appendTo: function(el) {
+              return el.parentElement.parentElement.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'quarto',
+            placement: 'right',
+            positionFixed: true,
+            popperOptions: {
+              modifiers: [
+              {
+                name: 'flip',
+                options: {
+                  flipVariations: false, // true by default
+                  allowedAutoPlacements: ['right'],
+                  fallbackPlacements: ['right', 'top', 'top-start', 'top-end', 'bottom', 'bottom-start', 'bottom-end', 'left'],
+                },
+              },
+              {
+                name: 'preventOverflow',
+                options: {
+                  mainAxis: false,
+                  altAxis: false
+                }
+              }
+              ]        
+            }      
+          };
+          window.tippy(annoteTarget, config); 
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p><span class="faux-block"><i class="fa-brands fa-creative-commons" aria-label="creative-commons"></i> 2024 Vivek Srikrishnan</span><br> See the <a href="../../about.html">About Page</a> for credit information.</p>
+</div>   
+    <div class="nav-footer-center">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+ <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.en">LICENSE: CC-BY-SA  <i class="fab fa-creative-commons"></i><i class="fab fa-creative-commons-by"></i><i class="fab fa-creative-commons-sa"></i></a>
+  </li>  
+</ul>
+    </div>
+    <div class="nav-footer-right">
+<p>Made with <a href="https://julialang.org">Julia</a> and <a href="https://quarto.org/">Quarto</a><br> <a href="https://github.com/bee-envdata-cornell/spring2024/">View the source at <i class="fa-brands fa-github" aria-label="github"></i> GitHub</a></p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
